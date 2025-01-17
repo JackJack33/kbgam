@@ -7,7 +7,7 @@ public:
 	Scene(SDL_Renderer* renderer_in);
 	~Scene();
 
-	void addGameObject(GameObject* gameObject_in);
+	void AddGameObject(GameObject* gameObject_in);
 
 	void Update();
 	void Render();

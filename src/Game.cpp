@@ -1,16 +1,20 @@
 #pragma once
 #include "Game.h"
 #include "Scene.h"
-#include "TextureManager.h"
 #include "GameObject.h"
-#include "Button.h"
+#include "Component.h"
+#include "components/SpriteComponent.h"
+#include "components/TextComponent.h"
+#include "components/ButtonComponent.h"
 
 Game::Game() {}
 Game::~Game() {}
 
-void Game::init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen) {
+void Game::init(const char* title, int xpos, int ypos, int w, int h, bool fullscreen) {
 
 	isRunning = false;
+	width = w;
+	height = h;
 
 	int flags = 0;
 	if (fullscreen) {
@@ -39,7 +43,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 		return;
 	}
 
-	font = TTF_OpenFont("assets/fonts/Roboto.ttf", 40);
+	font = TTF_OpenFont("assets/fonts/Roboto.ttf", 35);
 	if (!font) {
 		std::cout << "Failed to load font!" << std::endl;
 		return;
@@ -61,9 +65,37 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 	scenes = { mainMenu, game };
 	activeScene = scenes.at(0);
 
-	Button* testButton = new Button("assets/outline.png", font, renderer, 32, 32, 10, 10, "Options");
+	int bh = h / 2;
+	int bw = w / 6;
 
-	mainMenu->addGameObject(testButton);
+	GameObject* optionsButton = new GameObject();
+	GameObject* playButton = new GameObject();
+	GameObject* quitButton = new GameObject();
+
+	ButtonComponent* optionsButtonComponent = new ButtonComponent(optionsButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "Q", 2 * bw, bh);
+	optionsButtonComponent->SetOnClick([]() {
+		std::cout << "Options button pressed!" << std::endl;
+		});
+	ButtonComponent* playButtonComponent = new ButtonComponent(playButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "W", 3 * bw, bh);
+	playButtonComponent->SetOnClick([]() {
+		std::cout << "Play button pressed!" << std::endl;
+		});
+	ButtonComponent* quitButtonComponent = new ButtonComponent(quitButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "E", 4 * bw, bh);
+	quitButtonComponent->SetOnClick([]() {
+		std::cout << "Quit button pressed!" << std::endl;
+		});
+
+	optionsButton->AddComponent(optionsButtonComponent);
+	playButton->AddComponent(playButtonComponent);
+	quitButton->AddComponent(quitButtonComponent);
+
+	optionsButton->AddComponent(new TextComponent(optionsButton, renderer, font, "Optn", 2 * bw, bh - 60));
+	playButton->AddComponent(new TextComponent(playButton, renderer, font, "Play", 3 * bw, bh - 60));
+	quitButton->AddComponent(new TextComponent(quitButton, renderer, font, "Quit", 4 * bw, bh - 60));
+
+	mainMenu->AddGameObject(optionsButton);
+	mainMenu->AddGameObject(playButton);
+	mainMenu->AddGameObject(quitButton);
 
 	std::cout << "Initialized" << std::endl;
 	isRunning = true;
@@ -93,9 +125,6 @@ void Game::handleKeyboard() {
 		if (keyStateCurrent[i] == 1 && keyStatePrevious[i] == 0) {
 			keysDown++;
 		}
-	}
-	if (keysDown != 0) {
-		std::cout << keysDown << std::endl;
 	}
 	memcpy(keyStatePrevious, keyStateCurrent, numKeys);
 	return;

@@ -7,7 +7,7 @@ public:
 	Game();
 	~Game();
 
-	void init(const char* title, int xpos = SDL_WINDOWPOS_CENTERED, int ypos = SDL_WINDOWPOS_CENTERED, int width = 800, int height = 600, bool fullscreen = false);
+	void init(const char* title, int xpos = SDL_WINDOWPOS_CENTERED, int ypos = SDL_WINDOWPOS_CENTERED, int w = 800, int h = 600, bool fullscreen = false);
 
 	void handleEvents();
 	void handleKeyboard();
@@ -18,6 +18,9 @@ public:
 	bool running();
 
 private:
+
+	int width;
+	int height;
 	int count;
 	bool isRunning;
 	SDL_Window* window;
