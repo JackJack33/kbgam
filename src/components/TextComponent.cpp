@@ -2,8 +2,8 @@
 #include "TextComponent.h"
 #include "../GameObject.h"
 
-TextComponent::TextComponent(GameObject* owner, SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color)
-	: Component(owner), renderer(renderer), font(font), text(text), posX(x), posY(y), color(color) {
+TextComponent::TextComponent(GameObject* owner, SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color, bool centerX, bool centerY)
+	: Component(owner), renderer(renderer), font(font), text(text), posX(x), posY(y), color(color), centerX(centerX), centerY(centerY) {
 	CreateTextTexture();
 }
 
@@ -33,16 +33,22 @@ void TextComponent::CreateTextTexture() {
 	}
 
 	textTexture = SDL_CreateTextureFromSurface(renderer, surface);
-
 	textRect.w = surface->w;
 	textRect.h = surface->h;
-	textRect.x = posX - textRect.w / 2;
-	textRect.y = posY - textRect.h / 2;
+	textRect.x = posX;
+	textRect.y = posY;
+
+	if (centerX) {
+		textRect.x = posX - textRect.w / 2;
+	}
+	if (centerY) {
+ 		textRect.y = posY - textRect.h / 2;
+	}
 
 	SDL_FreeSurface(surface);
 }
 
-void TextComponent::Update() {}
+void TextComponent::Update(int deltaTime) {}
 
 void TextComponent::Render() {
 	SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);

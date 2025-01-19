@@ -1,5 +1,8 @@
 #pragma once
 #include "Game.h"
+#include "FileManager.h"
+#include "Level.h"
+#include "Difficulty.h"
 #include "Scene.h"
 #include "GameObject.h"
 #include "Component.h"
@@ -33,6 +36,7 @@ void Game::init(const char* title, int xpos, int ypos, int w, int h, bool fullsc
 	}
 
 	renderer = SDL_CreateRenderer(window, -1, 0);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	if (!renderer) {
 		std::cout << "Failed to create renderer!" << std::endl;
 		return;
@@ -49,6 +53,10 @@ void Game::init(const char* title, int xpos, int ypos, int w, int h, bool fullsc
 		return;
 	}
 
+	FileManager fileManager;
+	fileManager.InitializeFilesystem();
+	std::vector<Level*> levels = fileManager.ReadAllLevels();
+
 	int numKeys;
 	const Uint8* keyStateCurrent = SDL_GetKeyboardState(&numKeys);
 	keyStatePrevious = new Uint8[numKeys];
@@ -57,13 +65,15 @@ void Game::init(const char* title, int xpos, int ypos, int w, int h, bool fullsc
 		std::cout << "Failed to initialize keyStatePrevious array!" << std::endl;
 		return;
 	}
-	
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
 	Scene* mainMenu = new Scene(renderer);
+	Scene* optionsMenu = new Scene(renderer);
+	Scene* levelMenu = new Scene(renderer);
 	Scene* game = new Scene(renderer);
-	scenes = { mainMenu, game };
+	scenes = { mainMenu, levelMenu, game };
 	activeScene = scenes.at(0);
+
+	// main menu scene
 
 	int bh = h / 2;
 	int bw = w / 6;
@@ -77,12 +87,15 @@ void Game::init(const char* title, int xpos, int ypos, int w, int h, bool fullsc
 		std::cout << "Options button pressed!" << std::endl;
 		});
 	ButtonComponent* playButtonComponent = new ButtonComponent(playButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "W", 3 * bw, bh);
-	playButtonComponent->SetOnClick([]() {
+	playButtonComponent->SetOnClick([this]() {
 		std::cout << "Play button pressed!" << std::endl;
+		this->transitionToScene(scenes.at(1));
+		timer1 = SDL_GetTicks();
 		});
 	ButtonComponent* quitButtonComponent = new ButtonComponent(quitButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "E", 4 * bw, bh);
-	quitButtonComponent->SetOnClick([]() {
+	quitButtonComponent->SetOnClick([this]() {
 		std::cout << "Quit button pressed!" << std::endl;
+		this->quit();
 		});
 
 	optionsButton->AddComponent(optionsButtonComponent);
@@ -97,12 +110,23 @@ void Game::init(const char* title, int xpos, int ypos, int w, int h, bool fullsc
 	mainMenu->AddGameObject(playButton);
 	mainMenu->AddGameObject(quitButton);
 
+	// level menu
+
+	for (int i = 0; i < 5; i++) {
+		Level* level = levels.at(i);
+		GameObject* levelObject = new GameObject();
+		SDL_Color color = { 255,255,255,255 };
+		levelObject->AddComponent(new TextComponent(levelObject, renderer, font, level->GetArtistName() + " - " + level->GetSongName(), 100, bh, color, false, true));
+		levelObject->AddComponent(new TextComponent(levelObject, renderer, font, level->GetSongSubName(), 100, bh + 60, color, false, true));
+		levelMenu->AddGameObject(levelObject);
+	}
+
 	std::cout << "Initialized" << std::endl;
 	isRunning = true;
 	return;
 }
 
-void Game::handleEvents() {
+void Game::handleEvents(int deltaTime) {
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0) {
 		switch (event.type) {
@@ -130,14 +154,48 @@ void Game::handleKeyboard() {
 	return;
 }
 
-void Game::update() {
-	activeScene->Update();
+void Game::handleSceneTransitions(int deltaTime) {
+	if (fadeState == FADE_OUT) {
+		fadeAlpha += fadeSpeed * deltaTime;
+		if (fadeAlpha >= 255) {
+			fadeAlpha = 255;
+			activeScene = nextScene;
+			fadeState = FADE_IN;
+		}
+	}
+	else if (fadeState == FADE_IN) {
+		fadeAlpha -= fadeSpeed * deltaTime;
+		if (fadeAlpha <= 0) {
+			fadeAlpha = 0;
+			fadeState = NONE;
+			timer2 = SDL_GetTicks();
+			std::cout << timer2 - timer1 << std::endl;
+		}
+	}
+}
+
+void Game::update(int deltaTime) {
+	handleEvents(deltaTime);
+	handleKeyboard();
+	handleSceneTransitions(deltaTime);
+	activeScene->Update(deltaTime);
 	return;
 }
 
 void Game::render() {
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
-	activeScene->Render();
+
+	if (activeScene) {
+		activeScene->Render();
+	}
+
+	if (fadeState != NONE) {
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, (int)fadeAlpha);
+		SDL_Rect rect = { 0,0,width,height };
+		SDL_RenderFillRect(renderer, &rect);
+	}
+
 	SDL_RenderPresent(renderer);
 	return;
 }
@@ -150,6 +208,16 @@ void Game::clean() {
 	return;
 }
 
+void Game::quit() {
+	isRunning = false;
+}
+
 bool Game::running() {
 	return isRunning;
+}
+
+void Game::transitionToScene(Scene* scene) {
+	fadeState = FADE_OUT;
+	nextScene = scene;
+	fadeAlpha = 0;
 }

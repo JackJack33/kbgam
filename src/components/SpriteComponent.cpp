@@ -26,9 +26,7 @@ void SpriteComponent::SetTexture(const char* newTextureFile) {
 	}
 }
 
-void SpriteComponent::Update() {
-
-}
+void SpriteComponent::Update(int deltaTime) {}
 
 void SpriteComponent::Render() {
 	SDL_RenderCopy(renderer, texture, &srcRect, &dstRect);

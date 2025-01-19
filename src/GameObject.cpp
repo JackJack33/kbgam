@@ -11,9 +11,9 @@ void GameObject::AddComponent(Component* component) {
 	components.push_back(component);
 }
 
-void GameObject::Update() {
+void GameObject::Update(int deltaTime) {
 	for (auto component : components) {
-		component->Update();
+		component->Update(deltaTime);
 	}
 }
 

@@ -9,7 +9,7 @@ public:
 	Component(GameObject* owner) : owner(owner) {}
 	virtual ~Component() = default;
 
-	virtual void Update() = 0;
+	virtual void Update(int deltaTime) = 0;
 	virtual void Render() = 0;
 
 protected:

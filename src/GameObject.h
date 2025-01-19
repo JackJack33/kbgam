@@ -11,7 +11,7 @@ public:
 
 	void AddComponent(Component* component);
 
-	void Update();
+	void Update(int deltaTime);
 	void Render();
 
 private:

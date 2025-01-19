@@ -4,12 +4,12 @@
 
 class TextComponent : public Component {
 public:
-	TextComponent(GameObject* owner, SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x = 0, int y = 0, SDL_Color color = { 255,255,255,255 });
+	TextComponent(GameObject* owner, SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x = 0, int y = 0, SDL_Color color = { 255,255,255,255 }, bool centerX = true, bool centerY = true);
 	~TextComponent();
 
 	void SetText(const std::string& newText);
 	void SetColor(SDL_Color newColor);
-	void Update() override;
+	void Update(int deltaTime) override;
 	void Render() override;
 
 private:
@@ -20,8 +20,8 @@ private:
 	SDL_Color color;
 	std::string text;
 
-	int posX;
-	int posY;
+	bool centerX, centerY;
+	int posX, posY;
 
 	void CreateTextTexture();
 };

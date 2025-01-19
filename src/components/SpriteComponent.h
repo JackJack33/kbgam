@@ -9,7 +9,7 @@ public:
 
 	void SetTexture(const char* newTextureFile);
 
-	void Update() override;
+	void Update(int deltaTime) override;
 	void Render() override;
 
 private:

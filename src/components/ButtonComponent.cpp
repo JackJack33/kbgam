@@ -14,7 +14,7 @@ ButtonComponent::ButtonComponent(GameObject* owner, SDL_Renderer* renderer, TTF_
 
 ButtonComponent::~ButtonComponent() {}
 
-void ButtonComponent::Update() {
+void ButtonComponent::Update(int deltaTime) {
     HandleKeyPress();
 }
 
@@ -23,7 +23,7 @@ void ButtonComponent::Render() {
     textComponent->Render();
 }
 
-void ButtonComponent::SetOnClick(void (*onClickFunc)()) {
+void ButtonComponent::SetOnClick(std::function<void()> onClickFunc) {
     onClick = onClickFunc;
 }
 

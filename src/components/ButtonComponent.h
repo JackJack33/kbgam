@@ -9,10 +9,10 @@ public:
 	ButtonComponent(GameObject* owner, SDL_Renderer* renderer, TTF_Font* font, const char* outlineTexture, const char* fillTexture, const std::string& text, int x = 0, int y = 0);
 	~ButtonComponent();
 
-	void Update() override;
+	void Update(int deltaTime) override;
 	void Render() override;
 
-	void SetOnClick(void (*onClickFunc)());
+	void SetOnClick(std::function<void()> onClickFunc);
 
 private:
 	SpriteComponent* spriteComponent;
@@ -21,7 +21,7 @@ private:
 	bool keyDown = false;
 	const char* outlineTexture;
 	const char* fillTexture;
-	void (*onClick)() = nullptr;
+	std::function<void()> onClick;
 
 	void HandleKeyPress();
 };

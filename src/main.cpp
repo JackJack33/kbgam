@@ -5,27 +5,32 @@ Game* game = nullptr;
 
 int main(int argc, char* argv[]) {
 
-	const int FPS = 60;
-	const int FRAME_DELAY = 1000 / FPS;
-	uint32_t frameStart;
-	uint32_t frameTime;
-
 	game = new Game();
 	game->init("kbgam");
 
+	// timing done in integer ms
+	int currentTime = SDL_GetTicks();
+	int accumulator = 0;
+	int t = 0;
+	int dt = 5;
+
 	while (game->running()) {
 
-		frameStart = SDL_GetTicks();
-
-		game->handleEvents();
-		game->handleKeyboard();
-		game->update();
-		game->render();
-
-		frameTime = SDL_GetTicks() - frameStart;
-		if (frameTime < FRAME_DELAY) {
-			SDL_Delay(FRAME_DELAY - frameTime);
+		int newTime = SDL_GetTicks();
+		int frameTime = newTime - currentTime;
+		if (frameTime > 250) {
+			frameTime = 250;
 		}
+		currentTime = newTime;
+		accumulator += frameTime;
+
+		while (accumulator >= dt) {
+			game->update(dt);
+			t += dt;
+			accumulator -= dt;
+		}
+
+		game->render();
 	}
 
 	game->clean();

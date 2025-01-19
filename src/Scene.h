@@ -9,7 +9,7 @@ public:
 
 	void AddGameObject(GameObject* gameObject_in);
 
-	void Update();
+	void Update(int deltaTime);
 	void Render();
 
 private:
