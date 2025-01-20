@@ -1,12 +1,15 @@
 #pragma once
 #include "Depend.h"
-#include "Scene.h"
+#include "Level.h"
 
 enum FadeState {
 	NONE,
 	FADE_IN,
 	FADE_OUT
 };
+
+class Scene;
+class GameObject;
 
 class Game {
 public:
@@ -24,7 +27,9 @@ public:
 
 	void quit();
 	bool running();
+
 	void transitionToScene(Scene* scene);
+	void transitionToScene(int sceneIndex);
 
 private:
 
@@ -35,6 +40,7 @@ private:
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	TTF_Font* font;
+	TTF_Font* fontSmall;
 
 	Uint8* keyStatePrevious;
 
@@ -44,8 +50,7 @@ private:
 	FadeState fadeState = NONE;
 	double fadeAlpha = 255.0f;
 	Scene* nextScene = nullptr;
-	float fadeSpeed = 255.0f / 100.0f; // opacity units per millisecond
+	float fadeSpeed = 255.0f / 100.0f; // 255 opacity units per 100 milliseconds
 
-	int timer1;
-	int timer2;
+	std::vector<Level*> levels;
 };

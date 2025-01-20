@@ -2,13 +2,19 @@
 #include "GameObject.h"
 
 GameObject::~GameObject() {
-	for (auto component : components) {
-		delete component;
-	}
+	DeleteComponents();
 }
 
 void GameObject::AddComponent(Component* component) {
 	components.push_back(component);
+}
+
+void GameObject::DeleteComponents() {
+	components.clear();
+	for (auto component : components) {
+		delete component;
+	}
+	std::cout << "deleted2 " << components.size() << std::endl;
 }
 
 void GameObject::Update(int deltaTime) {

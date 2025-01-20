@@ -10,6 +10,7 @@ public:
 	virtual ~GameObject();
 
 	void AddComponent(Component* component);
+	void DeleteComponents();
 
 	void Update(int deltaTime);
 	void Render();

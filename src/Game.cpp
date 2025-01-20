@@ -3,12 +3,13 @@
 #include "FileManager.h"
 #include "Level.h"
 #include "Difficulty.h"
-#include "Scene.h"
 #include "GameObject.h"
 #include "Component.h"
 #include "components/SpriteComponent.h"
 #include "components/TextComponent.h"
 #include "components/ButtonComponent.h"
+#include "Scene.h"
+#include "scenes/MainMenu.h"
 
 Game::Game() {}
 Game::~Game() {}
@@ -48,14 +49,15 @@ void Game::init(const char* title, int xpos, int ypos, int w, int h, bool fullsc
 	}
 
 	font = TTF_OpenFont("assets/fonts/Roboto.ttf", 35);
-	if (!font) {
+	fontSmall = TTF_OpenFont("assets/fonts/Roboto.ttf", 28);
+	if (!font || !fontSmall) {
 		std::cout << "Failed to load font!" << std::endl;
 		return;
 	}
 
 	FileManager fileManager;
 	fileManager.InitializeFilesystem();
-	std::vector<Level*> levels = fileManager.ReadAllLevels();
+	levels = fileManager.ReadAllLevels();
 
 	int numKeys;
 	const Uint8* keyStateCurrent = SDL_GetKeyboardState(&numKeys);
@@ -66,60 +68,11 @@ void Game::init(const char* title, int xpos, int ypos, int w, int h, bool fullsc
 		return;
 	}
 
-	Scene* mainMenu = new Scene(renderer);
-	Scene* optionsMenu = new Scene(renderer);
-	Scene* levelMenu = new Scene(renderer);
-	Scene* game = new Scene(renderer);
-	scenes = { mainMenu, levelMenu, game };
+	Scene* mainMenu = new MainMenuScene(this, renderer, font, fontSmall, width, height);
+	Scene* levelMenu = new Scene(this, renderer, font, fontSmall, width, height);
+	scenes = { mainMenu, levelMenu };
 	activeScene = scenes.at(0);
-
-	// main menu scene
-
-	int bh = h / 2;
-	int bw = w / 6;
-
-	GameObject* optionsButton = new GameObject();
-	GameObject* playButton = new GameObject();
-	GameObject* quitButton = new GameObject();
-
-	ButtonComponent* optionsButtonComponent = new ButtonComponent(optionsButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "Q", 2 * bw, bh);
-	optionsButtonComponent->SetOnClick([]() {
-		std::cout << "Options button pressed!" << std::endl;
-		});
-	ButtonComponent* playButtonComponent = new ButtonComponent(playButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "W", 3 * bw, bh);
-	playButtonComponent->SetOnClick([this]() {
-		std::cout << "Play button pressed!" << std::endl;
-		this->transitionToScene(scenes.at(1));
-		timer1 = SDL_GetTicks();
-		});
-	ButtonComponent* quitButtonComponent = new ButtonComponent(quitButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "E", 4 * bw, bh);
-	quitButtonComponent->SetOnClick([this]() {
-		std::cout << "Quit button pressed!" << std::endl;
-		this->quit();
-		});
-
-	optionsButton->AddComponent(optionsButtonComponent);
-	playButton->AddComponent(playButtonComponent);
-	quitButton->AddComponent(quitButtonComponent);
-
-	optionsButton->AddComponent(new TextComponent(optionsButton, renderer, font, "Optn", 2 * bw, bh - 60));
-	playButton->AddComponent(new TextComponent(playButton, renderer, font, "Play", 3 * bw, bh - 60));
-	quitButton->AddComponent(new TextComponent(quitButton, renderer, font, "Quit", 4 * bw, bh - 60));
-
-	mainMenu->AddGameObject(optionsButton);
-	mainMenu->AddGameObject(playButton);
-	mainMenu->AddGameObject(quitButton);
-
-	// level menu
-
-	for (int i = 0; i < 5; i++) {
-		Level* level = levels.at(i);
-		GameObject* levelObject = new GameObject();
-		SDL_Color color = { 255,255,255,255 };
-		levelObject->AddComponent(new TextComponent(levelObject, renderer, font, level->GetArtistName() + " - " + level->GetSongName(), 100, bh, color, false, true));
-		levelObject->AddComponent(new TextComponent(levelObject, renderer, font, level->GetSongSubName(), 100, bh + 60, color, false, true));
-		levelMenu->AddGameObject(levelObject);
-	}
+	activeScene->Start();
 
 	std::cout << "Initialized" << std::endl;
 	isRunning = true;
@@ -160,6 +113,7 @@ void Game::handleSceneTransitions(int deltaTime) {
 		if (fadeAlpha >= 255) {
 			fadeAlpha = 255;
 			activeScene = nextScene;
+			activeScene->Start();
 			fadeState = FADE_IN;
 		}
 	}
@@ -168,8 +122,6 @@ void Game::handleSceneTransitions(int deltaTime) {
 		if (fadeAlpha <= 0) {
 			fadeAlpha = 0;
 			fadeState = NONE;
-			timer2 = SDL_GetTicks();
-			std::cout << timer2 - timer1 << std::endl;
 		}
 	}
 }
@@ -220,4 +172,47 @@ void Game::transitionToScene(Scene* scene) {
 	fadeState = FADE_OUT;
 	nextScene = scene;
 	fadeAlpha = 0;
+}
+
+void Game::transitionToScene(int sceneIndex) {
+	if (sceneIndex < 0 || sceneIndex >= scenes.size()) {
+		std::cout << "Could not find scene with index " << sceneIndex << std::endl;
+		return;
+	}
+	fadeState = FADE_OUT;
+	nextScene = scenes.at(sceneIndex);
+	fadeAlpha = 0;
+}
+
+void Game::updateLevelList(Scene* scene, GameObject* levelList) {
+
+	levelList->DeleteComponents();
+	std::cout << "deleted" << std::endl;
+
+	for (int i = 0; i < 5; i++) {
+		if (i > levels.size()) { break; }
+		std::cout << i << std::endl;
+		try {
+			int verticalCounter = 0;
+			Level* level = levels.at(i);
+			SDL_Color color = { 255,255,255,255 };
+
+			ButtonComponent* levelButtonComponent = new ButtonComponent(levelList, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "A", 100, 60);
+			levelButtonComponent->SetOnClick([level]() {
+				std::cout << "Load level " << level->GetSongName() << std::endl;
+				});
+			levelList->AddComponent(levelButtonComponent);
+
+			levelList->AddComponent(new TextComponent(levelList, renderer, font, level->GetArtistName() + " - " + level->GetSongName(), 200, 60, color, false, true));
+			verticalCounter += 40;
+			if (!level->GetSongSubName().empty()) {
+				levelList->AddComponent(new TextComponent(levelList, renderer, fontSmall, level->GetSongSubName(), 200, 60 + verticalCounter, color, false, true));
+				verticalCounter += 30;
+			}
+			scene->AddGameObject(levelList);
+		}
+		catch (...) {
+			continue;
+		}
+	}
 }
