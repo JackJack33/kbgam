@@ -10,6 +10,8 @@ public:
 	virtual ~Scene();
 
 	void AddGameObject(GameObject* gameObject_in);
+	void RemoveGameObject(GameObject* gameObject_in);
+	void DeleteGameObjects();
 
 	virtual void Start();
 	virtual void Update(int deltaTime);

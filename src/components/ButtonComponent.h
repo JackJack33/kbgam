@@ -18,7 +18,7 @@ private:
 	SpriteComponent* spriteComponent;
 	TextComponent* textComponent;
 	std::string text;
-	bool keyDown = false;
+	bool keyDown = true;
 	const char* outlineTexture;
 	const char* fillTexture;
 	std::function<void()> onClick;

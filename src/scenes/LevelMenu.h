@@ -9,6 +9,12 @@ public:
 
 	void Start() override;
 
+	void NextLevelIndex();
+	void PrevLevelIndex();
+	void UpdateLevelList();
+
 private:
 	int levelListIndex;
+	int numLevels;
+	std::vector<GameObject*> levelListGameObjects;
 };

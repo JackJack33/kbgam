@@ -15,32 +15,32 @@ void MainMenuScene::Start() {
 	int bh = height / 2;
 	int bw = width / 6;
 
-	GameObject* optionsButton = new GameObject();
-	GameObject* playButton = new GameObject();
 	GameObject* quitButton = new GameObject();
+	GameObject* playButton = new GameObject();
+	GameObject* optionsButton = new GameObject();
 
-	ButtonComponent* optionsButtonComponent = new ButtonComponent(optionsButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "Q", 2 * bw, bh);
-	optionsButtonComponent->SetOnClick([]() {
-		std::cout << "Options button pressed!" << std::endl;
+	ButtonComponent* quitButtonComponent = new ButtonComponent(quitButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "Q", 2 * bw, bh);
+	quitButtonComponent->SetOnClick([this]() {
+		this->game->quit();
 		});
 	ButtonComponent* playButtonComponent = new ButtonComponent(playButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "W", 3 * bw, bh);
 	playButtonComponent->SetOnClick([this]() {
 		this->game->transitionToScene(1);
 		});
-	ButtonComponent* quitButtonComponent = new ButtonComponent(quitButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "E", 4 * bw, bh);
-	quitButtonComponent->SetOnClick([this]() {
-		this->game->quit();
+	ButtonComponent* optionsButtonComponent = new ButtonComponent(optionsButton, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "E", 4 * bw, bh);
+	optionsButtonComponent->SetOnClick([]() {
+		std::cout << "Options button pressed!" << std::endl;
 		});
 
-	optionsButton->AddComponent(optionsButtonComponent);
-	playButton->AddComponent(playButtonComponent);
 	quitButton->AddComponent(quitButtonComponent);
+	playButton->AddComponent(playButtonComponent);
+	optionsButton->AddComponent(optionsButtonComponent);
 
-	optionsButton->AddComponent(new TextComponent(optionsButton, renderer, font, "Optn", 2 * bw, bh - 60));
+	quitButton->AddComponent(new TextComponent(quitButton, renderer, font, "Quit", 2 * bw, bh - 60));
 	playButton->AddComponent(new TextComponent(playButton, renderer, font, "Play", 3 * bw, bh - 60));
-	quitButton->AddComponent(new TextComponent(quitButton, renderer, font, "Quit", 4 * bw, bh - 60));
+	optionsButton->AddComponent(new TextComponent(optionsButton, renderer, font, "Optn", 4 * bw, bh - 60));
 
-	AddGameObject(optionsButton);
-	AddGameObject(playButton);
 	AddGameObject(quitButton);
+	AddGameObject(playButton);
+	AddGameObject(optionsButton);
 }

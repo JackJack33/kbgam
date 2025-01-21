@@ -31,6 +31,9 @@ public:
 	void transitionToScene(Scene* scene);
 	void transitionToScene(int sceneIndex);
 
+	std::vector<Level*> getLevels();
+	Level* getLevel(int levelIndex);
+
 private:
 
 	int width;

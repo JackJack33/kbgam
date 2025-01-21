@@ -10,11 +10,10 @@ void GameObject::AddComponent(Component* component) {
 }
 
 void GameObject::DeleteComponents() {
-	components.clear();
 	for (auto component : components) {
 		delete component;
 	}
-	std::cout << "deleted2 " << components.size() << std::endl;
+	components.clear();
 }
 
 void GameObject::Update(int deltaTime) {
@@ -27,4 +26,8 @@ void GameObject::Render() {
 	for (auto component : components) {
 		component->Render();
 	}
+}
+
+void GameObject::PrintTest() {
+	std::cout << "i am alive" << std::endl;
 }

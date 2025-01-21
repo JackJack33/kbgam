@@ -15,6 +15,8 @@ public:
 	void Update(int deltaTime);
 	void Render();
 
+	void PrintTest();
+
 private:
 	std::vector<Component*> components;
 };

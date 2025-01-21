@@ -11,13 +11,23 @@ Scene::Scene(Game* game_in, SDL_Renderer* renderer_in, TTF_Font* font_in, TTF_Fo
 }
 
 Scene::~Scene() {
-	for (auto gameObject : gameObjects) {
-		delete gameObject;
-	}
+	DeleteGameObjects();
 }
 
 void Scene::AddGameObject(GameObject* gameObject_in) {
 	gameObjects.push_back(gameObject_in);
+}
+
+void Scene::RemoveGameObject(GameObject* gameObject_in) {
+	auto it = std::remove(gameObjects.begin(), gameObjects.end(), gameObject_in);
+	gameObjects.erase(it, gameObjects.end());
+}
+
+void Scene::DeleteGameObjects() {
+	for (auto gameObject : gameObjects) {
+		delete gameObject;
+	}
+	gameObjects.clear();
 }
 
 void Scene::Start() {}

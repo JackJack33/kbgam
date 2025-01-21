@@ -10,6 +10,7 @@
 #include "components/ButtonComponent.h"
 #include "Scene.h"
 #include "scenes/MainMenu.h"
+#include "scenes/LevelMenu.h"
 
 Game::Game() {}
 Game::~Game() {}
@@ -69,7 +70,7 @@ void Game::init(const char* title, int xpos, int ypos, int w, int h, bool fullsc
 	}
 
 	Scene* mainMenu = new MainMenuScene(this, renderer, font, fontSmall, width, height);
-	Scene* levelMenu = new Scene(this, renderer, font, fontSmall, width, height);
+	Scene* levelMenu = new LevelMenuScene(this, renderer, font, fontSmall, width, height);
 	scenes = { mainMenu, levelMenu };
 	activeScene = scenes.at(0);
 	activeScene->Start();
@@ -112,6 +113,7 @@ void Game::handleSceneTransitions(int deltaTime) {
 		fadeAlpha += fadeSpeed * deltaTime;
 		if (fadeAlpha >= 255) {
 			fadeAlpha = 255;
+			activeScene->DeleteGameObjects();
 			activeScene = nextScene;
 			activeScene->Start();
 			fadeState = FADE_IN;
@@ -168,6 +170,14 @@ bool Game::running() {
 	return isRunning;
 }
 
+std::vector<Level*> Game::getLevels() {
+	return levels;
+}
+
+Level* Game::getLevel(int levelIndex) {
+	return levels.at(levelIndex);
+}
+
 void Game::transitionToScene(Scene* scene) {
 	fadeState = FADE_OUT;
 	nextScene = scene;
@@ -182,37 +192,4 @@ void Game::transitionToScene(int sceneIndex) {
 	fadeState = FADE_OUT;
 	nextScene = scenes.at(sceneIndex);
 	fadeAlpha = 0;
-}
-
-void Game::updateLevelList(Scene* scene, GameObject* levelList) {
-
-	levelList->DeleteComponents();
-	std::cout << "deleted" << std::endl;
-
-	for (int i = 0; i < 5; i++) {
-		if (i > levels.size()) { break; }
-		std::cout << i << std::endl;
-		try {
-			int verticalCounter = 0;
-			Level* level = levels.at(i);
-			SDL_Color color = { 255,255,255,255 };
-
-			ButtonComponent* levelButtonComponent = new ButtonComponent(levelList, renderer, font, "assets/textures/outline.png", "assets/textures/fill.png", "A", 100, 60);
-			levelButtonComponent->SetOnClick([level]() {
-				std::cout << "Load level " << level->GetSongName() << std::endl;
-				});
-			levelList->AddComponent(levelButtonComponent);
-
-			levelList->AddComponent(new TextComponent(levelList, renderer, font, level->GetArtistName() + " - " + level->GetSongName(), 200, 60, color, false, true));
-			verticalCounter += 40;
-			if (!level->GetSongSubName().empty()) {
-				levelList->AddComponent(new TextComponent(levelList, renderer, fontSmall, level->GetSongSubName(), 200, 60 + verticalCounter, color, false, true));
-				verticalCounter += 30;
-			}
-			scene->AddGameObject(levelList);
-		}
-		catch (...) {
-			continue;
-		}
-	}
 }
