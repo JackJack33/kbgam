@@ -59,3 +59,7 @@ float Level::GetBPM() {
 std::vector<Difficulty*> Level::GetDifficulties() {
 	return difficulties;
 }
+
+Difficulty* Level::GetDifficulty(int diffIndex) {
+	return difficulties.at(diffIndex);
+}

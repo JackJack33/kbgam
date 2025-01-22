@@ -1,6 +1,7 @@
 #include "LevelMenu.h"
 #include "../Game.h"
 #include "../components/ButtonComponent.h"
+#include "DifficultyMenu.h"
 
 LevelMenuScene::LevelMenuScene(Game* game_in, SDL_Renderer* renderer_in, TTF_Font* font_in, TTF_Font* fontSmall_in, int w, int h) : Scene(game_in, renderer_in, font_in, fontSmall_in, w, h) {
 
@@ -60,8 +61,7 @@ void LevelMenuScene::PrevLevelIndex() {
 	}
 }
 
-void LevelMenuScene::UpdateLevelList() {
-
+void LevelMenuScene::DeleteLevelListObjects() {
 	for (auto gameObject : levelListGameObjects) {
 		if (gameObject != nullptr) {
 			RemoveGameObject(gameObject);
@@ -69,8 +69,12 @@ void LevelMenuScene::UpdateLevelList() {
 		}
 	}
 	levelListGameObjects.clear();
+}
 
-	int bw = width / 6;
+void LevelMenuScene::UpdateLevelList() {
+
+	DeleteLevelListObjects();
+
 	for (int i = 0; (i < 5) && (i + levelListIndex < numLevels); i++) {
 
 		int levelIndex = i + levelListIndex;
@@ -87,6 +91,9 @@ void LevelMenuScene::UpdateLevelList() {
 
 		levelButtonComponent->SetOnClick([this, level]() {
 			std::cout << "level selected: " << level->GetSongName() << std::endl;
+			this->game->transitionToScene(2);
+			DifficultyMenuScene* diffMenu = dynamic_cast<DifficultyMenuScene*>(this->game->scenes.at(2));
+			diffMenu->SetLevel(level);
 			});
 
 		levelButton->AddComponent(levelButtonComponent);

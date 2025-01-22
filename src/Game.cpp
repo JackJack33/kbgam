@@ -11,6 +11,7 @@
 #include "Scene.h"
 #include "scenes/MainMenu.h"
 #include "scenes/LevelMenu.h"
+#include "scenes/DifficultyMenu.h"
 
 Game::Game() {}
 Game::~Game() {}
@@ -71,7 +72,8 @@ void Game::init(const char* title, int xpos, int ypos, int w, int h, bool fullsc
 
 	Scene* mainMenu = new MainMenuScene(this, renderer, font, fontSmall, width, height);
 	Scene* levelMenu = new LevelMenuScene(this, renderer, font, fontSmall, width, height);
-	scenes = { mainMenu, levelMenu };
+	Scene* difficultyMenu = new DifficultyMenuScene(this, renderer, font, fontSmall, width, height);
+	scenes = { mainMenu, levelMenu, difficultyMenu };
 	activeScene = scenes.at(0);
 	activeScene->Start();
 

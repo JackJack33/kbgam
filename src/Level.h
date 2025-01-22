@@ -23,6 +23,7 @@ public:
 	std::string GetArtistName();
 	float GetBPM();
 	std::vector<Difficulty*> GetDifficulties();
+	Difficulty* GetDifficulty(int diffindex);
 
 private:
 

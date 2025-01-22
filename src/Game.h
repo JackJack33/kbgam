@@ -34,6 +34,8 @@ public:
 	std::vector<Level*> getLevels();
 	Level* getLevel(int levelIndex);
 
+	std::vector<Scene*> scenes;
+
 private:
 
 	int width;
@@ -47,7 +49,6 @@ private:
 
 	Uint8* keyStatePrevious;
 
-	std::vector<Scene*> scenes;
 	Scene* activeScene;
 
 	FadeState fadeState = NONE;

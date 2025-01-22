@@ -11,6 +11,7 @@ public:
 
 	void NextLevelIndex();
 	void PrevLevelIndex();
+	void DeleteLevelListObjects();
 	void UpdateLevelList();
 
 private:
